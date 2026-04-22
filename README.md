@@ -1,67 +1,35 @@
 # windsurf-updater
 
-Automated update tool for Windsurf Editor (tarball installation) on any systemd-based Linux.
+> Automated daily updates for [Windsurf Editor](https://windsurf.com) tarball installations on systemd-based Linux.
+
+
+Windsurf only ships official packages for Debian (apt) and Fedora (dnf). If you're on **Arch, Void, Alpine, or any other distro** that installed Windsurf from a tarball — this tool keeps it up to date automatically, no manual downloads needed.
 
 ---
 
-## Package Contents
+## Features
 
-```
-windsurf-updater/
-├── install.sh               ← Run this to set everything up
-├── windsurf-update          ← The main update script
-├── windsurf-update.service  ← Systemd service unit
-└── windsurf-update.timer    ← Systemd timer (daily auto-update)
-```
+- 🔄 **Daily auto-updates** via a systemd user timer
+- 🚀 **Runs 5 minutes after every boot** to catch missed updates
+- 💾 **Automatic backup** before every update — rollback anytime
+- 🖥️ **Desktop entry** created automatically if Windsurf is installed
+- 🧹 **Clean uninstall** — removes everything it installed, never touches Windsurf itself
 
 ---
 
-## Quick Start
-
-### Step 1 — Copy this folder to the target machine
-
-**Option A: USB drive or file manager**
-Copy the entire `windsurf-updater/` folder to the target machine's home directory.
-
-**Option B: SCP over SSH**
-```bash
-scp -r ~/windsurf-updater user@target-machine:~/windsurf-updater
-```
-
-**Option C: ZIP and transfer**
-```bash
-zip -r windsurf-updater.zip ~/windsurf-updater
-# Transfer the zip, then on target machine:
-unzip windsurf-updater.zip
-```
-
----
-
-### Step 2 — Run the installer on the target machine
+## Quick Install
 
 ```bash
-cd ~/windsurf-updater
+git clone https://github.com/Ultimategoistic/windsurf-updater.git
+cd windsurf-updater
 bash install.sh
 ```
 
-That's it. The installer handles everything automatically.
+That's it. The installer sets everything up and runs an initial version check.
 
 ---
 
-## What the Installer Does
-
-1. Checks that all required tools exist (`curl`, `grep`, `sort`, `tar`, etc.)
-2. Creates `~/.local/bin/` and `~/.config/systemd/user/` if they don't exist
-3. Copies `windsurf-update` to `~/.local/bin/` and makes it executable
-4. Copies the systemd `.service` and `.timer` to `~/.config/systemd/user/`
-5. Adds `~/.local/bin` to PATH in your shell profile if not already there
-6. Enables and starts the systemd timer (auto-updates daily)
-7. Creates the desktop entry (`windsurf.desktop`) if Windsurf is installed
-8. Runs an initial version check so you see the current status
-
----
-
-## Commands After Installation
+## Usage
 
 ```bash
 windsurf-update check      # Check if a newer version is available
@@ -70,31 +38,44 @@ windsurf-update rollback   # Restore the previous backup
 windsurf-update help       # Show all options
 ```
 
----
-
-## Fresh Install (Windsurf not yet installed)
-
-If Windsurf is not installed on the new machine, the installer will warn you. Then simply run:
+### Fresh install (Windsurf not yet on your machine)
 
 ```bash
-windsurf-update install
+bash install.sh            # sets up the updater
+windsurf-update install    # downloads and installs Windsurf
 ```
 
-This will download and install the latest Windsurf tarball automatically into `~/.var/app/Windsurf/`.
+---
+
+## How It Works
+
+When you run `install.sh`, it:
+
+1. Verifies all required tools are present (`curl`, `grep`, `sort`, `tar`, `file`)
+2. Installs `windsurf-update` to `~/.local/bin/`
+3. Installs the systemd `.service` and `.timer` to `~/.config/systemd/user/`
+4. Adds `~/.local/bin` to `$PATH` in your shell profile if needed
+5. Enables and starts the daily timer
+6. Creates a `.desktop` entry if Windsurf is already installed
+7. Runs an initial version check
 
 ---
 
 ## Auto-Update Schedule
 
-The systemd timer runs:
-- **5 minutes after every boot**
-- **Every 24 hours** while the machine is running
+| Trigger | When |
+|---|---|
+| Boot | 5 minutes after login |
+| Timer | Every 24 hours |
 
-Update logs are saved to: `~/.config/windsurf-update.log`
+Logs are written to `~/.config/windsurf-update.log`.
 
-To check timer status at any time:
 ```bash
+# Check timer status
 systemctl --user list-timers windsurf-update.timer
+
+# View logs
+cat ~/.config/windsurf-update.log
 ```
 
 ---
@@ -102,18 +83,30 @@ systemctl --user list-timers windsurf-update.timer
 ## Uninstall
 
 ```bash
-cd ~/windsurf-updater
 bash install.sh --remove
 ```
 
-This removes the script, systemd units, and log file.
-Windsurf itself is **not** touched.
+Removes the script, systemd units, and log file. **Windsurf itself is not touched.**
+
+---
+
+## File Paths
+
+| File | Path |
+|---|---|
+| Update script | `~/.local/bin/windsurf-update` |
+| Systemd service | `~/.config/systemd/user/windsurf-update.service` |
+| Systemd timer | `~/.config/systemd/user/windsurf-update.timer` |
+| Desktop entry | `~/.local/share/applications/windsurf.desktop` |
+| Log file | `~/.config/windsurf-update.log` |
+| Windsurf install | `~/.var/app/Windsurf/` |
+| Windsurf backup | `~/.var/app/Windsurf_old/` |
 
 ---
 
 ## Prerequisites
 
-Already present on Shani OS and most Arch/Debian/Fedora based systems:
+These are standard on most Linux distros:
 
 | Tool | Purpose |
 |---|---|
@@ -127,14 +120,26 @@ Already present on Shani OS and most Arch/Debian/Fedora based systems:
 
 ---
 
-## File Paths (after installation)
+## Repository Structure
 
-| File | Path |
-|---|---|
-| Update script | `~/.local/bin/windsurf-update` |
-| Systemd service | `~/.config/systemd/user/windsurf-update.service` |
-| Systemd timer | `~/.config/systemd/user/windsurf-update.timer` |
-| Desktop entry | `~/.local/share/applications/windsurf.desktop` |
-| Log file | `~/.config/windsurf-update.log` |
-| Windsurf install | `~/.var/app/Windsurf/` |
-| Windsurf backup | `~/.var/app/Windsurf_old/` |
+```
+windsurf-updater/
+├── install.sh               ← Run this to set everything up
+├── windsurf-update          ← The main update script
+├── windsurf-update.service  ← Systemd service unit
+└── windsurf-update.timer    ← Systemd timer (daily auto-update)
+```
+
+---
+
+## Contributing
+
+Issues and PRs are welcome. If it works on your distro, feel free to open a PR adding it to the tested list below.
+
+**Tested on:** Shani OS · Arch Linux · Void Linux
+
+---
+
+## License
+
+[MIT](LICENSE)
