@@ -1,0 +1,11 @@
+[Unit]
+Description=Windsurf Editor Automatic Update
+Documentation=file://%h/.local/bin/windsurf-update
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/windsurf-update install
+StandardOutput=journal
+StandardError=journal
