@@ -1,3 +1,15 @@
+> [!WARNING]
+> ## 🚚 This repository has moved
+> **This GitHub repo is archived and no longer maintained.**
+> All future development, issues, and releases are on GitLab:
+>
+> ### 👉 [gitlab.com/ultimategoistic/windsurf-updater](https://gitlab.com/ultimategoistic/windsurf-updater)
+>
+> Please update your bookmarks and re-clone from GitLab.
+
+---
+
+
 # windsurf-updater
 
 > Automated daily updates for [Windsurf Editor](https://windsurf.com) tarball installations on systemd-based Linux.
